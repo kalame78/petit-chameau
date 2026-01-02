@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Le Petit Chameau Savant - V6.3</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700;900&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #FFF7ED;
+            --primary: #F97316;
+            --secondary: #3B82F6;
+        }
+
+        body {
+            font-family: 'Fredoka', sans-serif;
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(#FDBA74 2px, transparent 2px),
+                radial-gradient(#FDBA74 2px, transparent 2px);
+            background-size: 40px 40px;
+            background-position: 0 0, 20px 20px;
+            user-select: none;
+            overflow: hidden;
+            touch-action: manipulation;
+            height: 100vh;
+            width: 100vw;
+            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="%23F97316" stroke="white" stroke-width="2"><circle cx="12" cy="12" r="8"/></svg>') 16 16, auto;
+        }
+
+        /* --- TYPOGRAPHIE --- */
+        .arabic-text { font-family: 'Amiri', serif; font-weight: 700; direction: rtl; }
+        .text-arabic-xl { font-size: 2.8rem; line-height: 1.4; }
+        .text-arabic-lg { font-size: 2rem; line-height: 1.4; }
+        
+        .saws { font-family: 'Amiri', serif; font-weight: 400; color: #166534; font-size: 1.1em; white-space: nowrap; }
+        .raa { font-size: 0.8em; font-weight: 700; color: #92400E; vertical-align: middle; }
+
+        /* --- ANIMATIONS --- */
+        .cloud {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            opacity: 0.4;
+            filter: blur(4px);
+            z-index: 0;
+            animation: floatCloud 20s infinite linear;
+        }
+        @keyframes floatCloud { from { transform: translateX(-100vw); } to { transform: translateX(100vw); } }
+        @keyframes float { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-10px) rotate(1deg); } }
+        .animate-float { animation: float 4s infinite ease-in-out; }
+        @keyframes popIn { 
+            0% { transform: scale(0.5); opacity: 0; } 
+            60% { transform: scale(1.1); } 
+            80% { transform: scale(0.95); } 
+            100% { transform: scale(1); opacity: 1; } 
+        }
+        .pop-in { animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px) rotate(-5deg); }
+            75% { transform: translateX(10px) rotate(5deg); }
+        }
+        .shake-screen { animation: shake 0.4s ease-in-out; }
+
+        /* --- BOUTONS JUICY --- */
+        .btn-juicy {
+            transition: all 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            transform: translateY(0);
+            overflow: hidden;
+        }
+        .btn-juicy:active { transform: translateY(6px) scale(0.96); box-shadow: 0 0 0 0 transparent !important; }
+        .btn-juicy:hover { transform: translateY(-3px); filter: brightness(1.05); }
+        .btn-juicy::after {
+            content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
+            background: linear-gradient(to right, transparent, rgba(255,255,255,0.4), transparent);
+            transform: skewX(-25deg); animation: shine 3s infinite;
+        }
+        @keyframes shine { 0% { left: -100%; } 20% { left: 200%; } 100% { left: 200%; } }
+
+        /* --- PARTICULES --- */
+        .particle { position: absolute; pointer-events: none; border-radius: 50%; z-index: 100; }
+
+        /* --- UI ELEMENTS --- */
+        .score-pill { background: linear-gradient(135deg, #FCD34D, #F59E0B); box-shadow: 0 4px 0 #D97706; }
+        .progress-container { background: #E5E7EB; border-radius: 999px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1); }
+        .progress-bar { background: linear-gradient(90deg, #4ADE80, #22C55E); box-shadow: 0 0 10px #4ADE80; transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        .mascot-wrapper { pointer-events: none; }
+
+        /* Floating Buttons */
+        .float-btn {
+            position: fixed;
+            right: 1rem;
+            z-index: 100;
+            background: white;
+            border-radius: 9999px;
+            width: 3rem;
+            height: 3rem;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border: 2px solid #E5E7EB;
+            font-size: 1.25rem; font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .float-btn:hover { transform: scale(1.1); border-color: #F97316; color: #F97316; }
+        .float-btn:active { transform: scale(0.9); }
+        
+        #sound-toggle { top: 1rem; }
+        #translit-toggle { top: 4.5rem; font-family: sans-serif; }
+        
+        .translit-badge {
+            background-color: #EFF6FF; color: #3B82F6; 
+            border: 1px solid #BFDBFE;
+            padding: 2px 8px; border-radius: 12px;
+            font-size: 0.75rem; font-weight: 700;
+            display: inline-block; margin-top: 2px;
+        }
+    </style>
+</head>
+<body class="overflow-hidden">
+
+    <!-- Elements Fixes -->
+    <div id="bg-layer" class="absolute inset-0 overflow-hidden pointer-events-none"></div>
+    
+    <button id="sound-toggle" class="float-btn" onclick="toggleMute()" title="Son On/Off">🔊</button>
+    <button id="translit-toggle" class="float-btn" onclick="toggleTranslit()" title="Afficher la phonétique" style="opacity: 0.6;">Aa</button>
+
+    <!-- App Container -->
+    <div id="app" class="h-full w-full flex flex-col relative z-10"></div>
+
+    <script>
+        // --- CONSTANTES ---
+        const SAWS = "<span class='saws'>صلى الله عليه وسلم</span>";
+        const AS = "<span class='saws'>عليه السلام</span>";
+        const RAA = "<span class='raa'>(RAA)</span>";
+
+        // --- DONNÉES DU JEU ---
+        
+        // --- NIVEAUX 6-7 ANS (JUNIOR) ---
+        const LEVELS_JUNIOR = [
+            { id: 101, title: "Garçon ou Fille ?", icon: "👶", color: "bg-blue-400", border: "border-blue-600", desc: "Ibn vs Bint", questions: [
+                { type: 'choice', prompt: "Pour un Garçon 👦, on dit...", options: ['IBN', 'BINT'], answer: 'IBN', explain: "Bravo ! Ibn = Fils", phonetics: {'IBN':'Ibn', 'BINT':'Bint'} },
+                { type: 'choice', prompt: "Pour une Fille 👧, on dit...", options: ['BINT', 'IBN'], answer: 'BINT', explain: "Super ! Bint = Fille", phonetics: {'IBN':'Ibn', 'BINT':'Bint'} },
+                { type: 'choice', prompt: "Omar " + RAA + " est le ___ de Khattab", options: ['FILS (Ibn)', 'FILLE (Bint)'], answer: 'FILS (Ibn)', explain: "Omar " + RAA + " est un garçon -> Ibn", phonetics: {} }
+            ]},
+            { id: 102, title: "Papa et Maman", icon: "👨‍👩‍👧", color: "bg-green-400", border: "border-green-600", desc: "Abu vs Oum", questions: [
+                { type: 'choice', prompt: "Papa se dit...", options: ['ABU', 'OUM'], answer: 'ABU', explain: "Abu = Papa", phonetics: {'ABU':'Abou', 'OUM':'Oum'} },
+                { type: 'choice', prompt: "Maman se dit...", options: ['OUM', 'ABU'], answer: 'OUM', explain: "Oum = Maman", phonetics: {'ABU':'Abou', 'OUM':'Oum'} },
+                { type: 'order', prompt: "Recompose : 'Maman de Aisha " + RAA + "'", segments: ['Aisha', 'Oum'], answer: "Oum Aisha", explain: "Oum (Maman de) Aisha " + RAA }
+            ]},
+            { id: 103, title: "Le Prophète " + SAWS, icon: "🕌", color: "bg-purple-400", border: "border-purple-600", desc: "Sa famille", questions: [
+                { type: 'choice', prompt: "Le père du Prophète " + SAWS + " est...", options: ['Abdullah', 'Abu Talib'], answer: 'Abdullah', explain: "Abdullah est le père du Prophète " + SAWS + ".", phonetics: {} },
+                { type: 'choice', prompt: "La mère du Prophète " + SAWS + " est...", options: ['Amina', 'Halima'], answer: 'Amina', explain: "Amina est sa maman.", phonetics: {} },
+                { type: 'order', prompt: "Muhammad " + SAWS + " fils de Abdullah", segments: ['Abdullah', 'Ibn', 'Muhammad'], answer: "Muhammad Ibn Abdullah", explain: "Le Prophète " + SAWS + " fils de Abdullah." }
+            ]},
+            { id: 104, title: "Qui suis-je ?", icon: "❤️", color: "bg-teal-400", border: "border-teal-600", desc: "Mon Identité", questions: [
+                { type: 'choice', prompt: "Je suis un petit...", options: ['Musulman', 'Ange'], answer: 'Musulman', explain: "Tu es un petit Musulman (soumis à Allah) !", phonetics: {} },
+                { type: 'choice', prompt: "Mon Seigneur est...", options: ['Allah', 'Le Soleil'], answer: 'Allah', explain: "Allah est mon Seigneur (Rabb).", phonetics: {} },
+                { type: 'order', prompt: "Recompose : 'Je suis Musulman'", segments: ['Musulman', 'suis', 'Je'], answer: "Je suis Musulman", explain: "C'est ma plus belle identité.", phonetics: {} },
+                { type: 'choice', prompt: "J'aime mon Prophète...", options: ['Muhammad ' + SAWS, 'Superman'], answer: 'Muhammad ' + SAWS, explain: "J'aime le Prophète " + SAWS + " plus que tout.", phonetics: {} }
+            ]}
+        ];
+
+        // --- NIVEAUX 8-10 ANS (SENIOR) ---
+        const LEVELS_SENIOR = [
+            { id: 201, title: "Liens de Parenté", icon: "🔗", color: "bg-orange-400", border: "border-orange-600", desc: "La famille", questions: [
+                { type: 'choice', prompt: "Quel est le bon terme ?", options: ['Fatimah '+RAA+' BINT Muhammad '+SAWS, 'Fatimah '+RAA+' IBN Muhammad '+SAWS], answer: 'Fatimah '+RAA+' BINT Muhammad '+SAWS, explain: "Fatimah " + RAA + " est la fille (Bint).", phonetics: {} },
+                { type: 'order', prompt: "Recompose le nom complet", segments: ['Khattab', 'Ibn', 'Omar'], answer: "Omar Ibn Khattab", explain: "Omar " + RAA + " Ibn Khattab." },
+                { type: 'choice', prompt: "'Mère des Croyants' se dit...", options: ['Oum al Mouminine', 'Bint al Mouminine'], answer: 'Oum al Mouminine', explain: "Titre des épouses du Prophète " + SAWS + ".", phonetics: {} },
+                { type: 'choice', prompt: "La mère de Jésus (Issa " + AS + ") est...", options: ['Maryam', 'Khadija', 'Asiya'], answer: 'Maryam', explain: "Issa " + AS + " Ibn Maryam " + AS + ".", phonetics: {} }
+            ]},
+            { id: 202, title: "Les Compagnons " + RAA, icon: "⚔️", color: "bg-red-400", border: "border-red-600", desc: "Titres", questions: [
+                { type: 'choice', prompt: "Qui est 'As-Siddiq' ?", options: ['Abu Bakr', 'Omar', 'Ali'], answer: 'Abu Bakr', explain: "Abu Bakr " + RAA + " (Le Véridique).", phonetics: {} },
+                { type: 'order', prompt: "Ali " + RAA + " fils de Abu Talib", segments: ['Talib', 'Abu', 'Ibn', 'Ali'], answer: "Ali Ibn Abu Talib", explain: "Ali " + RAA + " cousin du Prophète " + SAWS + "." }
+            ]},
+            { id: 203, title: "Lecture Arabe", icon: "📖", color: "bg-emerald-400", border: "border-emerald-600", desc: "Mots", questions: [
+                { type: 'choice', prompt: "Que signifie : <span class='text-arabic-xl mx-2'>أَب</span> ?", promptPhonetic: "(Ab)", options: ['Père', 'Mère', 'Frère'], answer: 'Père', explain: "Ab (Père).", phonetics: {} },
+                { type: 'choice', prompt: "Que signifie : <span class='text-arabic-xl mx-2'>رَسُول</span> ?", promptPhonetic: "(Rasoul)", options: ['Messager', 'Roi', 'Ange'], answer: 'Messager', explain: "Rasul (Messager).", phonetics: {} },
+                { type: 'order', prompt: "La Mecque est la ville sainte", segments: ['La Mecque', 'est', 'Sainte'], answer: "La Mecque est Sainte", explain: "Makkah Al-Mukarramah." }
+            ]},
+            { id: 204, title: "Sira : La Révélation", icon: "✨", color: "bg-indigo-400", border: "border-indigo-600", desc: "Les débuts", questions: [
+                { type: 'choice', prompt: "Dans quelle grotte ?", options: ['Hira', 'Thawr', 'Uhud'], answer: 'Hira', explain: "Grotte de Hira, où le Prophète " + SAWS + " méditait.", phonetics: {} },
+                { type: 'choice', prompt: "Quel ange ?", options: ['Jibril', 'Mikail'], answer: 'Jibril', explain: "L'ange Jibril " + AS + ".", phonetics: {} },
+                { type: 'choice', prompt: "Premier mot ?", options: ['Iqra (Lis)', 'Qul (Dis)'], answer: 'Iqra (Lis)', explain: "Sourate Al-Alaq.", phonetics: {'Iqra (Lis)':'Iqra'} }
+            ]},
+            { id: 205, title: "Mon Identité", icon: "💎", color: "bg-cyan-500", border: "border-cyan-700", desc: "Moi & l'Islam", questions: [
+                { type: 'choice', prompt: "Je suis avant tout un...", options: ['Serviteur d\'Allah', 'Joueur de foot'], answer: 'Serviteur d\'Allah', explain: "Je suis 'Abdullah' (Serviteur d'Allah).", phonetics: {} },
+                { type: 'choice', prompt: "Je fais partie de la Oumma de...", options: ['Muhammad ' + SAWS, 'Moussa ' + AS], answer: 'Muhammad ' + SAWS, explain: "Je suis de la communauté du dernier Prophète " + SAWS + ".", phonetics: {} },
+                { type: 'order', prompt: "Recompose : 'Fier d'être Musulman'", segments: ['Musulman', 'd\'être', 'Fier'], answer: "Fier d'être Musulman", explain: "C'est une grande fierté qu'Allah m'a donnée." },
+                { type: 'choice', prompt: "Mon guide dans la vie c'est...", options: ['Le Coran', 'La Télé'], answer: 'Le Coran', explain: "Le Coran est la parole d'Allah et mon guide.", phonetics: {} }
+            ]}
+        ];
+
+        // --- ÉTAT DU JEU ---
+        let state = {
+            screen: 'AGE_SELECT',
+            ageGroup: null,
+            levelsData: [],
+            unlockedLevels: [101, 201],
+            currentLevelId: null,
+            qIdx: 0,
+            score: 0,
+            streak: 0,
+            puzzleSel: [],
+            puzzleAvail: [],
+            feedback: null,
+            mascotEmotion: 'happy',
+            showPhonetics: false, // Par défaut OFF, bouton pour activer
+            isMuted: false
+        };
+
+        const app = document.getElementById('app');
+        let audioCtx = null;
+
+        // --- GESTION AUDIO & TRANSLIT ---
+        function initAudio() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+        }
+
+        function toggleMute() {
+            state.isMuted = !state.isMuted;
+            const btn = document.getElementById('sound-toggle');
+            btn.innerText = state.isMuted ? '🔇' : '🔊';
+            btn.style.opacity = state.isMuted ? '0.5' : '1';
+            if(!state.isMuted) playSound('click');
+        }
+
+        function toggleTranslit() {
+            state.showPhonetics = !state.showPhonetics;
+            const btn = document.getElementById('translit-toggle');
+            btn.style.opacity = state.showPhonetics ? '1' : '0.6';
+            btn.style.borderColor = state.showPhonetics ? '#3B82F6' : '#E5E7EB';
+            btn.style.color = state.showPhonetics ? '#3B82F6' : '#000';
+            playSound('click');
+            // Re-render seulement si on est en jeu pour voir l'effet
+            if(state.screen === 'GAME') renderGame();
+        }
+
+        function playSound(type) {
+            if(state.isMuted) return;
+            initAudio(); if (!audioCtx) return;
+            const now = audioCtx.currentTime;
+            
+            const playOsc = (freq, type, start, dur, vol = 0.1) => {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, start);
+                gain.gain.setValueAtTime(vol, start);
+                gain.gain.exponentialRampToValueAtTime(0.01, start + dur);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(start);
+                osc.stop(start + dur);
+            };
+
+            if (type === 'pop') { playOsc(600, 'sine', now, 0.1, 0.2); playOsc(1200, 'triangle', now + 0.05, 0.1, 0.1); } 
+            else if (type === 'win') { [523.25, 659.25, 783.99, 1046.50].forEach((f, i) => playOsc(f, 'sine', now + i*0.08, 0.4, 0.2)); } 
+            else if (type === 'error') { playOsc(150, 'sawtooth', now, 0.3, 0.3); playOsc(100, 'sawtooth', now + 0.1, 0.4, 0.3); } 
+            else if (type === 'click') { playOsc(800, 'triangle', now, 0.05, 0.05); } 
+            else if (type === 'fanfare') { const notes = [523, 659, 784, 1046, 784, 1046, 1318]; notes.forEach((f, i) => playOsc(f, 'square', now + i*0.15, 0.4, 0.2)); }
+        }
+
+        // --- VISUALS ---
+        function generateBackground() {
+            const bg = document.getElementById('bg-layer');
+            bg.innerHTML = '';
+            for(let i=0; i<6; i++) {
+                const cloud = document.createElement('div');
+                cloud.className = 'cloud';
+                const size = 50 + Math.random() * 100;
+                cloud.style.width = size + 'px';
+                cloud.style.height = (size * 0.6) + 'px';
+                cloud.style.top = (Math.random() * 100) + '%';
+                cloud.style.left = -200 + 'px';
+                cloud.style.animationDuration = (20 + Math.random() * 40) + 's';
+                cloud.style.animationDelay = (Math.random() * -20) + 's';
+                bg.appendChild(cloud);
+            }
+        }
+
+        function spawnParticles(x, y, count = 10, type='star') {
+            for(let i=0; i<count; i++) {
+                const p = document.createElement('div');
+                p.className = 'particle';
+                const size = 5 + Math.random() * 10;
+                p.style.width = size + 'px';
+                p.style.height = size + 'px';
+                p.style.left = x + 'px';
+                p.style.top = y + 'px';
+                const colors = ['#FCD34D', '#F87171', '#60A5FA', '#4ADE80', '#A78BFA'];
+                p.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                
+                const angle = Math.random() * Math.PI * 2;
+                const velocity = 2 + Math.random() * 8;
+                let px = 0, py = 0, opacity = 1;
+                
+                const anim = () => {
+                    px += Math.cos(angle) * velocity;
+                    py += Math.sin(angle) * velocity + (type === 'firework' ? 0.2 : 0.5);
+                    opacity -= 0.015;
+                    p.style.transform = `translate(${px}px, ${py}px) rotate(${px * 10}deg)`;
+                    p.style.opacity = opacity;
+                    if(opacity > 0) requestAnimationFrame(anim); else p.remove();
+                };
+                document.body.appendChild(p);
+                requestAnimationFrame(anim);
+            }
+        }
+        
+        function launchFireworks() {
+            const interval = setInterval(() => {
+                if(state.screen !== 'CERTIFICATE') { clearInterval(interval); return; }
+                const x = Math.random() * window.innerWidth;
+                const y = Math.random() * window.innerHeight * 0.5;
+                spawnParticles(x, y, 30, 'firework');
+                playSound('pop');
+            }, 500);
+        }
+
+        document.addEventListener('click', (e) => spawnParticles(e.clientX, e.clientY, 5));
+
+        // --- MASCOTTE INTELLIGENTE ---
+        function getMascotSVG(emotion, classes="w-40 h-40") {
+            let eyes, mouth, accessories = '';
+            const pupils = `<g class="pupils-group"><circle cx="45" cy="45" r="3.5" fill="black"/><circle cx="75" cy="45" r="3.5" fill="black"/></g>`;
+            const whites = `<g fill="white" stroke="#D97706"><circle cx="45" cy="45" r="8"/><circle cx="75" cy="45" r="8"/></g>`;
+            
+            if (emotion === 'graduate') {
+                accessories = `
+                    <g transform="translate(10, -25) rotate(-5)">
+                        <path d="M50,20 L90,40 L50,60 L10,40 Z" fill="#374151" stroke="#1F2937" stroke-width="2"/>
+                        <rect x="25" y="40" width="50" height="20" fill="#374151"/>
+                        <path d="M50,20 L50,60" fill="none"/>
+                        <path d="M50,30 Q60,30 90,55" fill="none" stroke="#F59E0B" stroke-width="2"/>
+                        <circle cx="90" cy="55" r="4" fill="#F59E0B"/>
+                    </g>
+                `;
+                eyes = whites + pupils;
+                mouth = 'M45,65 Q60,85 75,65'; 
+            } else if (emotion === 'cool' || state.streak >= 3) {
+                accessories = `
+                <g transform="translate(0, -2)">
+                    <path d="M28,40 L58,40 L56,52 Q43,62 30,52 Z" fill="#111" />
+                    <path d="M62,40 L92,40 L90,52 Q77,62 64,52 Z" fill="#111" />
+                    <line x1="58" y1="42" x2="62" y2="42" stroke="#111" stroke-width="3" />
+                    <line x1="28" y1="42" x2="15" y2="40" stroke="#111" stroke-width="2" />
+                    <line x1="92" y1="42" x2="105" y2="40" stroke="#111" stroke-width="2" />
+                    <path d="M32,42 L45,42 L38,48 Z" fill="white" opacity="0.3" />
+                    <path d="M66,42 L79,42 L72,48 Z" fill="white" opacity="0.3" />
+                </g>`;
+                eyes = whites + pupils; 
+                mouth = 'M48,70 Q60,75 72,70';
+            } else if (emotion === 'shocked') {
+                eyes = `<g fill="white" stroke="#D97706"><circle cx="45" cy="45" r="6"/><circle cx="75" cy="45" r="6"/></g><g fill="black"><circle cx="45" cy="45" r="2"/><circle cx="75" cy="45" r="2"/></g>`;
+                mouth = 'M50,70 Q60,85 70,70'; 
+            } else if (emotion === 'sad') {
+                eyes = `<path d="M40,50 Q45,45 50,50" fill="none" stroke="black" stroke-width="2"/><path d="M70,50 Q75,45 80,50" fill="none" stroke="black" stroke-width="2"/>`;
+                mouth = 'M50,75 Q60,65 70,75';
+            } else { 
+                eyes = whites + pupils;
+                mouth = 'M45,65 Q60,80 75,65';
+            }
+
+            return `
+            <div class="${classes} relative z-20 transition-transform duration-300 transform hover:scale-105" id="mascot-svg">
+                <svg viewBox="0 0 120 120" class="w-full h-full drop-shadow-2xl filter overflow-visible">
+                    <circle cx="60" cy="110" r="50" fill="#F59E0B"/>
+                    <circle cx="60" cy="60" r="45" fill="#F59E0B"/>
+                    <path d="M15,30 Q20,10 40,30" fill="#F59E0B" stroke="#D97706" stroke-width="2"/>
+                    <path d="M105,30 Q100,10 80,30" fill="#F59E0B" stroke="#D97706" stroke-width="2"/>
+                    <ellipse cx="60" cy="80" rx="22" ry="16" fill="#FCD34D"/>
+                    ${eyes}
+                    <path d="${mouth}" fill="none" stroke="#000" stroke-width="3" stroke-linecap="round"/>
+                    ${accessories}
+                </svg>
+            </div>`;
+        }
+        
+        document.addEventListener('mousemove', (e) => {
+            const pupils = document.querySelector('.pupils-group');
+            if(pupils) {
+                const rect = pupils.getBoundingClientRect();
+                const x = (e.clientX - rect.left - rect.width/2) / 20;
+                const y = (e.clientY - rect.top - rect.height/2) / 20;
+                pupils.style.transform = `translate(${Math.min(3, Math.max(-3, x))}px, ${Math.min(3, Math.max(-3, y))}px)`;
+            }
+        });
+
+        // --- RENDERING ---
+
+        function render() {
+            app.innerHTML = '';
+            if (state.screen === 'AGE_SELECT') renderAgeSelect();
+            else if (state.screen === 'MAP') renderMap();
+            else if (state.screen === 'GAME') renderGame();
+            else if (state.screen === 'RESULT') renderResult();
+            else if (state.screen === 'CERTIFICATE') renderCertificate();
+        }
+
+        function renderAgeSelect() {
+            app.innerHTML = `
+                <div class="flex flex-col items-center justify-center h-full p-6 animate-float">
+                    <h1 class="text-5xl md:text-6xl font-black text-orange-600 mb-2 drop-shadow-sm text-center" style="-webkit-text-stroke: 2px white;">Le Petit<br>Chameau</h1>
+                    
+                    <div class="flex flex-col md:flex-row gap-8 w-full max-w-3xl mt-10">
+                        <button onclick="selectAge('JUNIOR')" class="btn-juicy flex-1 bg-white rounded-[2rem] p-6 border-b-[8px] border-blue-200 shadow-xl flex flex-col items-center group relative overflow-visible">
+                            <div class="absolute -top-10 bg-blue-100 p-4 rounded-full text-5xl border-4 border-white shadow-lg group-hover:scale-110 transition-transform">🧭</div>
+                            <h2 class="text-3xl font-black text-blue-500 mt-8">6 - 7 Ans</h2>
+                            <p class="text-gray-500 font-bold text-xl mt-1">At-Tamiyiz</p>
+                            <p class="text-gray-400 text-sm font-medium">(L'Éveil)</p>
+                        </button>
+
+                        <button onclick="selectAge('SENIOR')" class="btn-juicy flex-1 bg-white rounded-[2rem] p-6 border-b-[8px] border-green-200 shadow-xl flex flex-col items-center group relative overflow-visible">
+                            <div class="absolute -top-10 bg-green-100 p-4 rounded-full text-5xl border-4 border-white shadow-lg group-hover:scale-110 transition-transform">🚀</div>
+                            <h2 class="text-3xl font-black text-green-500 mt-8">8 - 10 Ans</h2>
+                            <p class="text-gray-500 font-bold text-xl mt-1">Al-Mumayiz</p>
+                            <p class="text-gray-400 text-sm font-medium">(Le Discernement)</p>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderMap() {
+            const levels = state.levelsData;
+            const positions = levels.map((_, i) => ({ x: 50 + (i % 2 === 0 ? -20 : 20), y: 15 + (i * 18) }));
+            let pathD = `M 50 -10`; positions.forEach(pos => pathD += ` L ${pos.x} ${pos.y}`);
+            
+            app.innerHTML = `
+                <div class="relative w-full h-full overflow-y-auto overflow-x-hidden bg-orange-50/80">
+                    <div class="sticky top-0 z-50 bg-white/80 backdrop-blur-md p-4 shadow-sm flex justify-between items-center">
+                        <button onclick="state.screen='AGE_SELECT'; render()" class="text-gray-500 font-bold hover:text-orange-500 transition">↩ Retour</button>
+                        <div class="font-black text-orange-500 text-xl tracking-wider uppercase">${state.ageGroup === 'JUNIOR' ? 'At-Tamiyiz' : 'Al-Mumayiz'}</div>
+                        <div class="score-pill px-4 py-2 rounded-full text-white font-black shadow-sm mr-8">⭐ ${state.score}</div>
+                    </div>
+
+                    <div class="relative w-full max-w-md mx-auto py-12 min-h-[120vh]">
+                        <svg class="absolute top-0 left-0 w-full h-full z-0 pointer-events-none overflow-visible">
+                            <path d="${pathD}" fill="none" stroke="white" stroke-width="12" stroke-linecap="round" />
+                            <path d="${pathD}" fill="none" stroke="#FDBA74" stroke-width="6" stroke-dasharray="15,15" stroke-linecap="round" />
+                        </svg>
+
+                        ${levels.map((l, i) => {
+                            const unlocked = state.unlockedLevels.includes(l.id);
+                            const current = state.unlockedLevels[state.unlockedLevels.length - 1] === l.id;
+                            const pos = positions[i];
+                            return `
+                                <div class="absolute transform -translate-x-1/2 -translate-y-1/2 z-10 flex flex-col items-center" style="left: ${pos.x}%; top: ${pos.y}%;">
+                                    <button onclick="startLevel(${l.id})" 
+                                        class="relative w-24 h-24 rounded-full border-[6px] border-white shadow-xl flex items-center justify-center text-4xl transition-all duration-300 ${unlocked ? l.color + ' btn-juicy' : 'bg-gray-200 grayscale opacity-80 cursor-not-allowed'} ${current ? 'scale-110 ring-4 ring-yellow-400 ring-offset-4' : ''}">
+                                        ${unlocked ? l.icon : '🔒'}
+                                        ${current ? `<div class="absolute -bottom-2 bg-yellow-400 text-xs font-bold px-2 py-0.5 rounded-full text-white animate-bounce">GO!</div>` : ''}
+                                    </button>
+                                    <div class="mt-3 bg-white px-3 py-1 rounded-lg text-sm font-bold text-gray-600 shadow-md border-2 border-white/50 text-center whitespace-nowrap">
+                                        ${l.title}
+                                    </div>
+                                </div>`;
+                        }).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderGame() {
+            const level = state.levelsData.find(l => l.id === state.currentLevelId);
+            const q = level.questions[state.qIdx];
+            const progress = ((state.qIdx) / level.questions.length) * 100;
+            const isAr = (txt) => /[\u0600-\u06FF]/.test(txt);
+
+            app.innerHTML = `
+                <div class="flex flex-col h-full w-full max-w-2xl mx-auto relative md:my-4 md:h-[95vh] md:rounded-[3rem] md:shadow-2xl md:border-8 md:border-white/50 overflow-hidden bg-white/40 backdrop-blur-sm">
+                    <div class="flex items-center justify-between p-4 z-30">
+                        <button onclick="state.screen='MAP'; render()" class="w-10 h-10 bg-white rounded-full shadow-md flex items-center justify-center text-gray-500 font-bold hover:scale-110 transition">✕</button>
+                        <div class="flex-1 mx-4 progress-container h-4">
+                            <div class="progress-bar h-full rounded-full" style="width: ${progress}%"></div>
+                        </div>
+                        <div class="flex gap-1 text-2xl filter drop-shadow-sm mr-8">
+                            ${Array(state.streak).fill('🔥').map(e => `<span class="pop-in">${e}</span>`).join('')}
+                        </div>
+                    </div>
+
+                    <div class="flex-1 flex flex-col items-center justify-start pt-16 px-6 overflow-y-auto pb-32">
+                        <div class="relative w-full max-w-md">
+                            <div class="absolute -top-24 left-1/2 -translate-x-1/2 z-0">${getMascotSVG(state.mascotEmotion)}</div>
+                            <div class="relative z-10 bg-white p-8 rounded-[2rem] shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] border-b-[8px] border-gray-100 text-center pop-in">
+                                <h2 class="text-2xl md:text-3xl font-black text-gray-700 leading-snug tracking-tight mb-2">${q.prompt}</h2>
+                                ${state.showPhonetics && q.promptPhonetic ? `<div class="text-blue-500 text-xl font-bold mt-2 font-sans">${q.promptPhonetic}</div>` : ''}
+                                ${state.showPhonetics ? 
+                                    `<div class="mt-2 inline-flex items-center gap-1 bg-blue-50 text-blue-500 px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase"><span class="text-lg">💡</span> Aide Active</div>` : ''}
+                            </div>
+                        </div>
+
+                        <div class="w-full mt-8 space-y-4 max-w-md z-20">
+                            ${q.type === 'choice' ? 
+                                q.options.map((opt, i) => {
+                                    const safe = opt.replace(/'/g, "\\'");
+                                    let cls = "bg-white border-gray-200 text-gray-700";
+                                    if(state.feedback === 'correct' && opt === q.answer) cls = "bg-green-500 text-white border-green-700 ring-4 ring-green-200";
+                                    else if(state.feedback === 'incorrect' && opt !== q.answer) cls = "opacity-50";
+                                    else if(state.feedback === 'incorrect' && state.lastWrong === opt) cls = "bg-red-500 text-white border-red-700";
+                                    
+                                    let content = opt;
+                                    if(state.showPhonetics && q.phonetics && q.phonetics[opt]) content += `<div class="translit-badge">${q.phonetics[opt]}</div>`;
+
+                                    return `<button onclick="handleAnswer('${safe}')" class="w-full btn-juicy p-4 rounded-2xl border-b-4 text-xl font-bold shadow-md flex flex-col items-center justify-center min-h-[80px] ${cls} ${isAr(opt) ? 'arabic-text text-arabic-lg' : ''}" style="animation-delay: ${i*0.1}s">${content}</button>`;
+                                }).join('') 
+                            : 
+                                `<div class="bg-white/80 p-4 rounded-3xl border-4 border-dashed border-blue-200 min-h-[100px] flex flex-wrap gap-2 justify-center items-center mb-4 transition-colors ${state.puzzleSel.length?'bg-blue-50':''}">
+                                    ${state.puzzleSel.map(w => `<button onclick="togglePuzzle('${w.replace(/'/g, "\\'")}', 'remove')" class="bg-white text-blue-600 px-4 py-2 rounded-xl border-b-4 border-blue-200 font-bold shadow-sm pop-in">${w}</button>`).join('')}
+                                    ${!state.puzzleSel.length ? '<span class="text-gray-400 font-bold opacity-50">Appuie sur les mots...</span>' : ''}
+                                 </div>
+                                 <div class="flex flex-wrap justify-center gap-2">
+                                    ${state.puzzleAvail.map(w => `<button onclick="togglePuzzle('${w.replace(/'/g, "\\'")}', 'add')" class="btn-juicy bg-white text-gray-700 px-4 py-3 rounded-xl border-b-4 border-gray-300 font-bold shadow-sm">${w}</button>`).join('')}
+                                 </div>
+                                 ${!state.feedback && state.puzzleSel.length ? `<button onclick="checkPuzzle()" class="w-full mt-6 bg-green-500 text-white py-4 rounded-2xl font-black border-b-4 border-green-700 shadow-xl btn-juicy animate-float">VÉRIFIER</button>` : ''}`
+                            }
+                        </div>
+                    </div>
+                </div>
+                ${state.feedback ? renderFeedback(q) : ''}
+            `;
+        }
+
+        function renderFeedback(q) {
+            const win = state.feedback === 'correct';
+            const correctText = !win ? `<div class='mt-2 text-green-700 text-lg font-black bg-green-100 px-3 py-1 rounded-lg inline-block border border-green-300'>Réponse : ${q.answer}</div>` : '';
+            
+            return `
+                <div class="fixed bottom-0 left-0 right-0 p-6 z-50 flex justify-center pointer-events-none">
+                    <div class="pointer-events-auto max-w-xl w-full ${win?'bg-green-100 border-green-400':'bg-red-100 border-red-400'} border-b-8 p-6 rounded-[2rem] shadow-2xl pop-in flex items-center justify-between gap-4">
+                        <div class="flex items-center gap-4 flex-1">
+                            <div class="text-4xl md:text-5xl animate-bounce">${win?'🎉':'🧐'}</div>
+                            <div>
+                                <h3 class="text-xl font-black ${win?'text-green-700':'text-red-700'}">${win?'EXCELLENT !':'DOMMAGE...'}</h3>
+                                <div class="${win?'text-green-600':'text-red-600'} font-medium text-sm md:text-base leading-tight">
+                                    ${q.explain}
+                                    ${correctText}
+                                </div>
+                            </div>
+                        </div>
+                        <button onclick="nextStep()" class="btn-juicy bg-white px-6 py-4 rounded-2xl font-black text-gray-700 border-b-4 border-gray-200 shadow-sm min-w-[80px]">➔</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderResult() {
+            const level = state.levelsData.find(l => l.id === state.currentLevelId);
+            const perfect = state.score === level.questions.length;
+            app.innerHTML = `
+                <div class="flex flex-col items-center justify-center h-full p-6 text-center">
+                    <div class="relative w-full max-w-sm">
+                         <div id="confetti-center" class="absolute top-1/2 left-1/2"></div>
+                         
+                         <!-- Z-INDEX CORRIGÉ : Mascotte derrière (0) -->
+                         ${getMascotSVG(perfect ? 'cool' : 'happy', 'w-48 h-48 mx-auto z-0 relative mb-[-3rem]')}
+                         
+                         <!-- Z-INDEX CORRIGÉ : Carte devant (10) -->
+                         <div class="bg-white pt-16 pb-8 px-8 rounded-[2.5rem] shadow-2xl border-8 border-white relative z-10 pop-in">
+                            <h2 class="text-4xl font-black text-gray-800 mb-2">Niveau Terminé !</h2>
+                            <div class="text-6xl font-black text-orange-500 mb-6 drop-shadow-sm">${state.score}/${level.questions.length}</div>
+                            <div class="space-y-3">
+                                <button onclick="state.screen='MAP'; render()" class="w-full btn-juicy bg-green-500 text-white py-4 rounded-2xl font-black border-b-4 border-green-700 text-lg">CONTINUER</button>
+                                <button onclick="startLevel(${state.currentLevelId})" class="w-full btn-juicy bg-blue-50 text-blue-500 py-3 rounded-2xl font-bold border-b-4 border-blue-100">Rejouer</button>
+                            </div>
+                         </div>
+                    </div>
+                </div>
+            `;
+            if(perfect) setTimeout(() => spawnParticles(window.innerWidth/2, window.innerHeight/2, 50), 100);
+        }
+
+        function renderCertificate() {
+            playFanfare();
+            launchFireworks();
+            app.innerHTML = `
+                <div class="flex flex-col items-center justify-center h-full p-6 text-center bg-gradient-to-b from-blue-400 to-indigo-600">
+                    <div class="relative w-full max-w-md pop-in">
+                        ${getMascotSVG('graduate', 'w-56 h-56 mx-auto mb-[-40px] relative z-20')}
+                        
+                        <div class="bg-white p-8 rounded-[2rem] shadow-2xl border-8 border-yellow-400 relative z-10">
+                            <div class="text-6xl mb-2">🎓</div>
+                            <h1 class="text-4xl font-black text-gray-800 mb-2 uppercase tracking-wide">Certificat</h1>
+                            <p class="text-gray-500 font-bold mb-4">de réussite</p>
+                            
+                            <div class="bg-yellow-50 p-4 rounded-xl border-2 border-yellow-200 mb-6">
+                                <p class="text-xl font-bold text-yellow-700">Bravo !</p>
+                                <p class="text-gray-600">Tu es maintenant un vrai</p>
+                                <p class="text-2xl font-black text-indigo-600 mt-1">${state.ageGroup === 'JUNIOR' ? 'Explorateur' : 'Savant'} !</p>
+                            </div>
+
+                            <button onclick="selectAge(state.ageGroup)" class="w-full btn-juicy bg-indigo-500 text-white py-4 rounded-2xl font-black border-b-4 border-indigo-700 shadow-lg text-lg">REJOUER L'AVENTURE</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- LOGIC ---
+        function selectAge(group) {
+            playSound('pop'); state.ageGroup = group;
+            state.levelsData = group === 'JUNIOR' ? LEVELS_JUNIOR : LEVELS_SENIOR;
+            state.unlockedLevels = group === 'JUNIOR' ? [101] : [201];
+            state.screen = 'MAP'; render();
+        }
+
+        function playFanfare() {
+            playSound('fanfare');
+        }
+
+        window.startLevel = (id) => {
+            if (!state.unlockedLevels.includes(id)) return;
+            playSound('click'); state.currentLevelId = id;
+            state.qIdx = 0; state.score = 0; state.streak = 0;
+            state.feedback = null; state.mascotEmotion = 'happy'; state.screen = 'GAME';
+            initQuestion(); render();
+        };
+
+        function initQuestion() {
+            const level = state.levelsData.find(l => l.id === state.currentLevelId);
+            const q = level.questions[state.qIdx];
+            if (q.type === 'order') { state.puzzleAvail = [...q.segments].sort(() => Math.random() - 0.5); state.puzzleSel = []; }
+        }
+
+        window.handleAnswer = (val) => {
+            if (state.feedback) return;
+            const level = state.levelsData.find(l => l.id === state.currentLevelId);
+            const q = level.questions[state.qIdx];
+            state.lastWrong = null;
+
+            if (val === q.answer) {
+                state.score++; state.streak++;
+                state.feedback = 'correct';
+                state.mascotEmotion = state.streak >= 3 ? 'cool' : 'happy';
+                playSound('win'); spawnParticles(window.innerWidth/2, window.innerHeight/2, 20);
+            } else {
+                state.streak = 0; state.feedback = 'incorrect'; state.lastWrong = val;
+                state.mascotEmotion = 'shocked';
+                playSound('error');
+                document.getElementById('app').classList.add('shake-screen');
+                setTimeout(() => document.getElementById('app').classList.remove('shake-screen'), 400);
+            }
+            render();
+        };
+
+        window.togglePuzzle = (w, action) => {
+            playSound('click');
+            if (action === 'add') { state.puzzleAvail = state.puzzleAvail.filter(x => x !== w); state.puzzleSel.push(w); } 
+            else { state.puzzleSel = state.puzzleSel.filter(x => x !== w); state.puzzleAvail.push(w); }
+            render();
+        };
+
+        window.checkPuzzle = () => { window.handleAnswer(state.puzzleSel.join(' ')); };
+
+        window.nextStep = () => {
+            playSound('click');
+            const level = state.levelsData.find(l => l.id === state.currentLevelId);
+            if (state.qIdx < level.questions.length - 1) {
+                state.qIdx++; state.feedback = null; state.mascotEmotion = 'happy';
+                initQuestion(); render();
+            } else {
+                const nextId = state.currentLevelId + 1;
+                // Vérifier si le niveau suivant existe
+                if(state.levelsData.find(l => l.id === nextId)) {
+                    if(!state.unlockedLevels.includes(nextId)) state.unlockedLevels.push(nextId);
+                    playSound('win'); state.screen = 'RESULT'; render();
+                } else {
+                    // FIN DU JEU -> CERTIFICAT
+                    playSound('win'); state.screen = 'CERTIFICATE'; render();
+                }
+            }
+        };
+
+        generateBackground(); render();
+
+    </script>
+</body>
+</html>
