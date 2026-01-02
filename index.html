@@ -4,19 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Le Petit Chameau Savant - V6.3</title>
+    <!-- Tailwind CSS (Le moteur de beauté) -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700;900&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            --bg-color: #FFF7ED;
-            --primary: #F97316;
-            --secondary: #3B82F6;
+            --bg-pattern: #FFF7ED;
         }
 
         body {
             font-family: 'Fredoka', sans-serif;
-            background-color: var(--bg-color);
+            background-color: var(--bg-pattern);
             background-image: 
                 radial-gradient(#FDBA74 2px, transparent 2px),
                 radial-gradient(#FDBA74 2px, transparent 2px);
@@ -27,10 +26,11 @@
             touch-action: manipulation;
             height: 100vh;
             width: 100vw;
+            /* Curseur personnalisé */
             cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="%23F97316" stroke="white" stroke-width="2"><circle cx="12" cy="12" r="8"/></svg>') 16 16, auto;
         }
 
-        /* --- TYPOGRAPHIE --- */
+        /* --- TYPOGRAPHIE SPÉCIALE --- */
         .arabic-text { font-family: 'Amiri', serif; font-weight: 700; direction: rtl; }
         .text-arabic-xl { font-size: 2.8rem; line-height: 1.4; }
         .text-arabic-lg { font-size: 2rem; line-height: 1.4; }
@@ -38,7 +38,7 @@
         .saws { font-family: 'Amiri', serif; font-weight: 400; color: #166534; font-size: 1.1em; white-space: nowrap; }
         .raa { font-size: 0.8em; font-weight: 700; color: #92400E; vertical-align: middle; }
 
-        /* --- ANIMATIONS --- */
+        /* --- ANIMATIONS "JUICY" --- */
         .cloud {
             position: absolute;
             background: white;
@@ -49,8 +49,10 @@
             animation: floatCloud 20s infinite linear;
         }
         @keyframes floatCloud { from { transform: translateX(-100vw); } to { transform: translateX(100vw); } }
+
         @keyframes float { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-10px) rotate(1deg); } }
         .animate-float { animation: float 4s infinite ease-in-out; }
+
         @keyframes popIn { 
             0% { transform: scale(0.5); opacity: 0; } 
             60% { transform: scale(1.1); } 
@@ -58,6 +60,7 @@
             100% { transform: scale(1); opacity: 1; } 
         }
         .pop-in { animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
             25% { transform: translateX(-10px) rotate(-5deg); }
@@ -65,7 +68,7 @@
         }
         .shake-screen { animation: shake 0.4s ease-in-out; }
 
-        /* --- BOUTONS JUICY --- */
+        /* --- BOUTONS 3D --- */
         .btn-juicy {
             transition: all 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
             position: relative;
@@ -74,6 +77,8 @@
         }
         .btn-juicy:active { transform: translateY(6px) scale(0.96); box-shadow: 0 0 0 0 transparent !important; }
         .btn-juicy:hover { transform: translateY(-3px); filter: brightness(1.05); }
+        
+        /* Effet reflet */
         .btn-juicy::after {
             content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
             background: linear-gradient(to right, transparent, rgba(255,255,255,0.4), transparent);
@@ -81,56 +86,34 @@
         }
         @keyframes shine { 0% { left: -100%; } 20% { left: 200%; } 100% { left: 200%; } }
 
-        /* --- PARTICULES --- */
+        /* Particules */
         .particle { position: absolute; pointer-events: none; border-radius: 50%; z-index: 100; }
 
-        /* --- UI ELEMENTS --- */
-        .score-pill { background: linear-gradient(135deg, #FCD34D, #F59E0B); box-shadow: 0 4px 0 #D97706; }
-        .progress-container { background: #E5E7EB; border-radius: 999px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1); }
-        .progress-bar { background: linear-gradient(90deg, #4ADE80, #22C55E); box-shadow: 0 0 10px #4ADE80; transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        /* Mascotte Container */
         .mascot-wrapper { pointer-events: none; }
-
-        /* Floating Buttons */
-        .float-btn {
-            position: fixed;
-            right: 1rem;
-            z-index: 100;
-            background: white;
-            border-radius: 9999px;
-            width: 3rem;
-            height: 3rem;
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            border: 2px solid #E5E7EB;
-            font-size: 1.25rem; font-weight: 700;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .float-btn:hover { transform: scale(1.1); border-color: #F97316; color: #F97316; }
-        .float-btn:active { transform: scale(0.9); }
-        
-        #sound-toggle { top: 1rem; }
-        #translit-toggle { top: 4.5rem; font-family: sans-serif; }
-        
-        .translit-badge {
-            background-color: #EFF6FF; color: #3B82F6; 
-            border: 1px solid #BFDBFE;
-            padding: 2px 8px; border-radius: 12px;
-            font-size: 0.75rem; font-weight: 700;
-            display: inline-block; margin-top: 2px;
-        }
     </style>
 </head>
-<body class="overflow-hidden">
+<body class="overflow-hidden text-gray-800">
 
-    <!-- Elements Fixes -->
+    <!-- Background Elements -->
     <div id="bg-layer" class="absolute inset-0 overflow-hidden pointer-events-none"></div>
-    
-    <button id="sound-toggle" class="float-btn" onclick="toggleMute()" title="Son On/Off">🔊</button>
-    <button id="translit-toggle" class="float-btn" onclick="toggleTranslit()" title="Afficher la phonétique" style="opacity: 0.6;">Aa</button>
+
+    <!-- BOUTONS FLOTTANTS (SON & AIDE) -->
+    <div class="fixed top-4 right-4 z-50 flex flex-col gap-3">
+        <!-- Son -->
+        <button id="sound-btn" onclick="toggleMute()" class="w-12 h-12 bg-white rounded-full shadow-lg border-2 border-gray-100 flex items-center justify-center text-2xl hover:scale-110 active:scale-95 transition-transform">
+            🔊
+        </button>
+        <!-- Phonétique -->
+        <button id="translit-btn" onclick="toggleTranslit()" class="w-12 h-12 bg-white rounded-full shadow-lg border-2 border-gray-100 flex items-center justify-center font-bold text-gray-400 hover:text-blue-500 hover:border-blue-200 transition-colors" title="Aide à la lecture">
+            Aa
+        </button>
+    </div>
 
     <!-- App Container -->
-    <div id="app" class="h-full w-full flex flex-col relative z-10"></div>
+    <div id="app" class="h-full w-full flex flex-col relative z-10">
+        <!-- Content Injected Here -->
+    </div>
 
     <script>
         // --- CONSTANTES ---
@@ -138,7 +121,7 @@
         const AS = "<span class='saws'>عليه السلام</span>";
         const RAA = "<span class='raa'>(RAA)</span>";
 
-        // --- DONNÉES DU JEU ---
+        // --- DONNÉES DU JEU (Avec Phonétique pour les questions) ---
         
         // --- NIVEAUX 6-7 ANS (JUNIOR) ---
         const LEVELS_JUNIOR = [
@@ -178,14 +161,14 @@
                 { type: 'order', prompt: "Ali " + RAA + " fils de Abu Talib", segments: ['Talib', 'Abu', 'Ibn', 'Ali'], answer: "Ali Ibn Abu Talib", explain: "Ali " + RAA + " cousin du Prophète " + SAWS + "." }
             ]},
             { id: 203, title: "Lecture Arabe", icon: "📖", color: "bg-emerald-400", border: "border-emerald-600", desc: "Mots", questions: [
-                { type: 'choice', prompt: "Que signifie : <span class='text-arabic-xl mx-2'>أَب</span> ?", promptPhonetic: "(Ab)", options: ['Père', 'Mère', 'Frère'], answer: 'Père', explain: "Ab (Père).", phonetics: {} },
-                { type: 'choice', prompt: "Que signifie : <span class='text-arabic-xl mx-2'>رَسُول</span> ?", promptPhonetic: "(Rasoul)", options: ['Messager', 'Roi', 'Ange'], answer: 'Messager', explain: "Rasul (Messager).", phonetics: {} },
+                { type: 'choice', prompt: "Que signifie : <span class='text-arabic-xl mx-2'>أَب</span> ?", promptPhonetic: "(Ab - Père)", options: ['Père', 'Mère', 'Frère'], answer: 'Père', explain: "Ab (Père).", phonetics: {} },
+                { type: 'choice', prompt: "Que signifie : <span class='text-arabic-xl mx-2'>رَسُول</span> ?", promptPhonetic: "(Rasoul - Messager)", options: ['Messager', 'Roi', 'Ange'], answer: 'Messager', explain: "Rasul (Messager).", phonetics: {} },
                 { type: 'order', prompt: "La Mecque est la ville sainte", segments: ['La Mecque', 'est', 'Sainte'], answer: "La Mecque est Sainte", explain: "Makkah Al-Mukarramah." }
             ]},
             { id: 204, title: "Sira : La Révélation", icon: "✨", color: "bg-indigo-400", border: "border-indigo-600", desc: "Les débuts", questions: [
                 { type: 'choice', prompt: "Dans quelle grotte ?", options: ['Hira', 'Thawr', 'Uhud'], answer: 'Hira', explain: "Grotte de Hira, où le Prophète " + SAWS + " méditait.", phonetics: {} },
                 { type: 'choice', prompt: "Quel ange ?", options: ['Jibril', 'Mikail'], answer: 'Jibril', explain: "L'ange Jibril " + AS + ".", phonetics: {} },
-                { type: 'choice', prompt: "Premier mot ?", options: ['Iqra (Lis)', 'Qul (Dis)'], answer: 'Iqra (Lis)', explain: "Sourate Al-Alaq.", phonetics: {'Iqra (Lis)':'Iqra'} }
+                { type: 'choice', prompt: "Premier mot ?", options: ['Iqra (Lis)', 'Qul (Dis)'], answer: 'Iqra (Lis)', explain: "Sourate Al-Alaq.", phonetics: {'Iqra (Lis)': 'Iqra'} }
             ]},
             { id: 205, title: "Mon Identité", icon: "💎", color: "bg-cyan-500", border: "border-cyan-700", desc: "Moi & l'Islam", questions: [
                 { type: 'choice', prompt: "Je suis avant tout un...", options: ['Serviteur d\'Allah', 'Joueur de foot'], answer: 'Serviteur d\'Allah', explain: "Je suis 'Abdullah' (Serviteur d'Allah).", phonetics: {} },
@@ -209,41 +192,48 @@
             puzzleAvail: [],
             feedback: null,
             mascotEmotion: 'happy',
-            showPhonetics: false, // Par défaut OFF, bouton pour activer
+            showPhonetics: false, // OFF par défaut
             isMuted: false
         };
 
         const app = document.getElementById('app');
         let audioCtx = null;
 
-        // --- GESTION AUDIO & TRANSLIT ---
+        // --- AUDIO ENGINE ---
         function initAudio() {
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             if (audioCtx.state === 'suspended') audioCtx.resume();
         }
 
+        // Action boutons
         function toggleMute() {
             state.isMuted = !state.isMuted;
-            const btn = document.getElementById('sound-toggle');
-            btn.innerText = state.isMuted ? '🔇' : '🔊';
-            btn.style.opacity = state.isMuted ? '0.5' : '1';
+            document.getElementById('sound-btn').innerHTML = state.isMuted ? '🔇' : '🔊';
+            document.getElementById('sound-btn').style.opacity = state.isMuted ? '0.5' : '1';
             if(!state.isMuted) playSound('click');
         }
 
         function toggleTranslit() {
             state.showPhonetics = !state.showPhonetics;
-            const btn = document.getElementById('translit-toggle');
-            btn.style.opacity = state.showPhonetics ? '1' : '0.6';
-            btn.style.borderColor = state.showPhonetics ? '#3B82F6' : '#E5E7EB';
-            btn.style.color = state.showPhonetics ? '#3B82F6' : '#000';
+            const btn = document.getElementById('translit-btn');
+            if(state.showPhonetics) {
+                btn.style.color = '#3B82F6';
+                btn.style.borderColor = '#93C5FD';
+                btn.classList.add('bg-blue-50');
+            } else {
+                btn.style.color = '#9CA3AF';
+                btn.style.borderColor = '#F3F4F6';
+                btn.classList.remove('bg-blue-50');
+            }
             playSound('click');
-            // Re-render seulement si on est en jeu pour voir l'effet
+            // Si on est en jeu, on rafraichit l'écran pour afficher/masquer
             if(state.screen === 'GAME') renderGame();
         }
 
         function playSound(type) {
             if(state.isMuted) return;
-            initAudio(); if (!audioCtx) return;
+            initAudio();
+            if (!audioCtx) return;
             const now = audioCtx.currentTime;
             
             const playOsc = (freq, type, start, dur, vol = 0.1) => {
@@ -259,11 +249,20 @@
                 osc.stop(start + dur);
             };
 
-            if (type === 'pop') { playOsc(600, 'sine', now, 0.1, 0.2); playOsc(1200, 'triangle', now + 0.05, 0.1, 0.1); } 
-            else if (type === 'win') { [523.25, 659.25, 783.99, 1046.50].forEach((f, i) => playOsc(f, 'sine', now + i*0.08, 0.4, 0.2)); } 
-            else if (type === 'error') { playOsc(150, 'sawtooth', now, 0.3, 0.3); playOsc(100, 'sawtooth', now + 0.1, 0.4, 0.3); } 
-            else if (type === 'click') { playOsc(800, 'triangle', now, 0.05, 0.05); } 
-            else if (type === 'fanfare') { const notes = [523, 659, 784, 1046, 784, 1046, 1318]; notes.forEach((f, i) => playOsc(f, 'square', now + i*0.15, 0.4, 0.2)); }
+            if (type === 'pop') {
+                playOsc(600, 'sine', now, 0.1, 0.2);
+                playOsc(1200, 'triangle', now + 0.05, 0.1, 0.1);
+            } else if (type === 'win') {
+                [523.25, 659.25, 783.99, 1046.50].forEach((f, i) => playOsc(f, 'sine', now + i*0.08, 0.4, 0.2));
+            } else if (type === 'error') {
+                playOsc(150, 'sawtooth', now, 0.3, 0.3);
+                playOsc(100, 'sawtooth', now + 0.1, 0.4, 0.3);
+            } else if (type === 'click') {
+                playOsc(800, 'triangle', now, 0.05, 0.05);
+            } else if (type === 'fanfare') {
+                const notes = [523, 659, 784, 1046, 784, 1046, 1318];
+                notes.forEach((f, i) => playOsc(f, 'square', now + i*0.15, 0.4, 0.2));
+            }
         }
 
         // --- VISUALS ---
@@ -434,10 +433,10 @@
             
             app.innerHTML = `
                 <div class="relative w-full h-full overflow-y-auto overflow-x-hidden bg-orange-50/80">
-                    <div class="sticky top-0 z-50 bg-white/80 backdrop-blur-md p-4 shadow-sm flex justify-between items-center">
+                    <div class="sticky top-0 z-40 bg-white/80 backdrop-blur-md p-4 shadow-sm flex justify-between items-center">
                         <button onclick="state.screen='AGE_SELECT'; render()" class="text-gray-500 font-bold hover:text-orange-500 transition">↩ Retour</button>
                         <div class="font-black text-orange-500 text-xl tracking-wider uppercase">${state.ageGroup === 'JUNIOR' ? 'At-Tamiyiz' : 'Al-Mumayiz'}</div>
-                        <div class="score-pill px-4 py-2 rounded-full text-white font-black shadow-sm mr-8">⭐ ${state.score}</div>
+                        <div class="score-pill px-4 py-2 rounded-full text-white font-black shadow-sm mr-12">⭐ ${state.score}</div>
                     </div>
 
                     <div class="relative w-full max-w-md mx-auto py-12 min-h-[120vh]">
@@ -480,7 +479,7 @@
                         <div class="flex-1 mx-4 progress-container h-4">
                             <div class="progress-bar h-full rounded-full" style="width: ${progress}%"></div>
                         </div>
-                        <div class="flex gap-1 text-2xl filter drop-shadow-sm mr-8">
+                        <div class="flex gap-1 text-2xl filter drop-shadow-sm mr-12">
                             ${Array(state.streak).fill('🔥').map(e => `<span class="pop-in">${e}</span>`).join('')}
                         </div>
                     </div>
@@ -490,9 +489,11 @@
                             <div class="absolute -top-24 left-1/2 -translate-x-1/2 z-0">${getMascotSVG(state.mascotEmotion)}</div>
                             <div class="relative z-10 bg-white p-8 rounded-[2rem] shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] border-b-[8px] border-gray-100 text-center pop-in">
                                 <h2 class="text-2xl md:text-3xl font-black text-gray-700 leading-snug tracking-tight mb-2">${q.prompt}</h2>
-                                ${state.showPhonetics && q.promptPhonetic ? `<div class="text-blue-500 text-xl font-bold mt-2 font-sans">${q.promptPhonetic}</div>` : ''}
+                                ${state.showPhonetics && q.promptPhonetic ? 
+                                    `<div class="text-blue-500 font-bold bg-blue-50 inline-block px-3 py-1 rounded-lg mt-2 font-sans">${q.promptPhonetic}</div>` : ''}
+                                
                                 ${state.showPhonetics ? 
-                                    `<div class="mt-2 inline-flex items-center gap-1 bg-blue-50 text-blue-500 px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase"><span class="text-lg">💡</span> Aide Active</div>` : ''}
+                                    `<div class="mt-2 text-xs font-bold text-gray-300 uppercase tracking-widest">Aide Phonétique Active</div>` : ''}
                             </div>
                         </div>
 
@@ -506,7 +507,9 @@
                                     else if(state.feedback === 'incorrect' && state.lastWrong === opt) cls = "bg-red-500 text-white border-red-700";
                                     
                                     let content = opt;
-                                    if(state.showPhonetics && q.phonetics && q.phonetics[opt]) content += `<div class="translit-badge">${q.phonetics[opt]}</div>`;
+                                    if(state.showPhonetics && q.phonetics && q.phonetics[opt]) {
+                                        content += `<div class="block text-sm font-normal opacity-80 mt-1 bg-white/20 rounded px-2 inline-block">${q.phonetics[opt]}</div>`;
+                                    }
 
                                     return `<button onclick="handleAnswer('${safe}')" class="w-full btn-juicy p-4 rounded-2xl border-b-4 text-xl font-bold shadow-md flex flex-col items-center justify-center min-h-[80px] ${cls} ${isAr(opt) ? 'arabic-text text-arabic-lg' : ''}" style="animation-delay: ${i*0.1}s">${content}</button>`;
                                 }).join('') 
@@ -577,7 +580,7 @@
         }
 
         function renderCertificate() {
-            playFanfare();
+            playSound('fanfare');
             launchFireworks();
             app.innerHTML = `
                 <div class="flex flex-col items-center justify-center h-full p-6 text-center bg-gradient-to-b from-blue-400 to-indigo-600">
@@ -608,10 +611,6 @@
             state.levelsData = group === 'JUNIOR' ? LEVELS_JUNIOR : LEVELS_SENIOR;
             state.unlockedLevels = group === 'JUNIOR' ? [101] : [201];
             state.screen = 'MAP'; render();
-        }
-
-        function playFanfare() {
-            playSound('fanfare');
         }
 
         window.startLevel = (id) => {
